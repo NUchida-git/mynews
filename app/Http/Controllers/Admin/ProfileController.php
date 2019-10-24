@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 //News Modelが扱えるようになる
 use App\Profile;
+use App\ProfileHistory;
+use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
@@ -25,14 +27,6 @@ class ProfileController extends Controller
 
       $profile = new Profile;
       $form = $request->all();
-
-    //   // フォームから画像が送信されてきたら、保存して、$news->image_path に画像のパスを保存する
-    //   if (isset($form['image'])) {
-    //     $path = $request->file('image')->store('public/image');
-    //     $profile->image_path = basename($path);
-    //   } else {
-    //     $profile->image_path = null;
-    //   }
 
       // フォームから送信されてきた_tokenを削除する
       unset($form['_token']);
@@ -68,6 +62,11 @@ class ProfileController extends Controller
     
         // 該当するデータを上書きして保存する
         $profile->fill($profile_form)->save();
+
+        $profilehistory = new ProfileHistory;
+        $profilehistory->profile_id = $profile->id;
+        $profilehistory->edited_at = Carbon::now();
+        $profilehistory->save();
     
         return redirect('admin/profile');
     }
